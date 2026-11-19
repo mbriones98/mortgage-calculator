@@ -148,8 +148,8 @@ function render(): void {
   renderBreakdown($("breakdown"), result.monthly);
   renderStats(result);
   renderTax(result, zipInfo);
-  renderBalanceChart($("balanceChart"), result.schedule, result.loanAmount);
-  renderSchedule(result.schedule, state.scheduleView);
+  renderBalanceChart($("balanceChart"), result.schedule, result.loanAmount, state.homePrice);
+  renderSchedule(result.schedule, state.scheduleView, state.homePrice);
 }
 
 function stat(label: string, value: string, note?: string): string {
@@ -210,7 +210,7 @@ function renderTax(r: LoanResult, zipInfo: ReturnType<typeof lookupZip>): void {
   renderTaxStrip($("taxStrip"), allStates(), zipInfo, effectiveTaxRate(state));
 }
 
-function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"]): void {
+function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"], homePrice: number): void {
   $("periodHeader").textContent = view === "yearly" ? "Year" : "Month";
   const tbody = $<HTMLTableElement>("schedule").tBodies[0]!;
 
@@ -238,7 +238,7 @@ function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"]
   const frag = document.createDocumentFragment();
   for (const row of rows) {
     const tr = document.createElement("tr");
-    for (const v of [row.label, row.principal, row.interest, row.extra, row.pmi, row.balance]) {
+    for (const v of [row.label, row.principal, row.interest, row.extra, row.pmi, row.balance, homePrice - row.balance]) {
       const td = document.createElement("td");
       td.textContent = typeof v === "string" ? v : formatCurrency(v, view === "monthly");
       tr.append(td);

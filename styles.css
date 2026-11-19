@@ -14,6 +14,7 @@
   --c-ins: #1f9e89;
   --c-pmi: #c2417a;
   --c-hoa: #7a5cd6;
+  --c-equity: #7a5cd6;
 
   --radius: 12px;
   --shadow: 0 1px 2px rgb(16 24 40 / 0.05), 0 1px 3px rgb(16 24 40 / 0.06);
@@ -37,6 +38,7 @@
     --c-ins: #3cc4ad;
     --c-pmi: #e56a9f;
     --c-hoa: #a68cff;
+    --c-equity: #a68cff;
 
     --shadow: none;
     color-scheme: dark;
@@ -58,6 +60,7 @@
   --c-ins: #3cc4ad;
   --c-pmi: #e56a9f;
   --c-hoa: #a68cff;
+  --c-equity: #a68cff;
   --shadow: none;
   color-scheme: dark;
 }
@@ -260,14 +263,17 @@ input[readonly] { color: var(--muted); }
 .chart .line-balance { stroke: var(--c-pi); }
 .chart .line-principal { stroke: var(--c-ins); }
 .chart .line-interest { stroke: var(--c-tax); }
+.chart .line-equity { stroke: var(--c-equity); }
 .chart .dot { stroke: var(--surface); stroke-width: 2; }
 .chart .dot.line-balance { fill: var(--c-pi); }
 .chart .dot.line-principal { fill: var(--c-ins); }
 .chart .dot.line-interest { fill: var(--c-tax); }
+.chart .dot.line-equity { fill: var(--c-equity); }
 .chart .hover-rule { stroke: var(--muted); stroke-dasharray: 3 3; }
 .swatch.line-balance { background: var(--c-pi); }
 .swatch.line-principal { background: var(--c-ins); }
 .swatch.line-interest { background: var(--c-tax); }
+.swatch.line-equity { background: var(--c-equity); }
 
 .chart .tick { stroke: var(--muted); stroke-width: 2; opacity: 0.35; }
 .chart .tick-selected { stroke: var(--c-tax); opacity: 1; stroke-width: 3; }

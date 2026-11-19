@@ -60,7 +60,7 @@ export function renderBreakdown(container: HTMLElement, monthly: MonthlyBreakdow
 // Balance over time: remaining balance, cumulative principal and interest
 // ---------------------------------------------------------------------------
 
-export function renderBalanceChart(container: HTMLElement, schedule: ScheduleRow[], loanAmount: number): void {
+export function renderBalanceChart(container: HTMLElement, schedule: ScheduleRow[], loanAmount: number, homePrice: number): void {
   container.replaceChildren();
   if (schedule.length === 0 || loanAmount <= 0) {
     container.textContent = "Enter a loan amount to see the chart.";
@@ -73,8 +73,9 @@ export function renderBalanceChart(container: HTMLElement, schedule: ScheduleRow
   const innerH = H - pad.top - pad.bottom;
 
   // Sample at year ends (plus month 0) to keep the path small.
-  type Point = { month: number; balance: number; principalPaid: number; interestPaid: number };
-  const points: Point[] = [{ month: 0, balance: loanAmount, principalPaid: 0, interestPaid: 0 }];
+  // Equity assumes the home keeps its purchase price (no appreciation).
+  type Point = { month: number; balance: number; principalPaid: number; interestPaid: number; equity: number };
+  const points: Point[] = [{ month: 0, balance: loanAmount, principalPaid: 0, interestPaid: 0, equity: homePrice - loanAmount }];
   schedule.forEach((row, i) => {
     if (row.month % 12 === 0 || i === schedule.length - 1) {
       points.push({
@@ -82,12 +83,13 @@ export function renderBalanceChart(container: HTMLElement, schedule: ScheduleRow
         balance: row.balance,
         principalPaid: loanAmount - row.balance,
         interestPaid: row.totalInterest,
+        equity: homePrice - row.balance,
       });
     }
   });
 
   const maxMonth = points[points.length - 1]!.month;
-  const maxY = Math.max(loanAmount, points[points.length - 1]!.interestPaid);
+  const maxY = Math.max(homePrice, loanAmount, points[points.length - 1]!.interestPaid);
   const x = (m: number) => pad.left + (m / maxMonth) * innerW;
   const y = (v: number) => pad.top + innerH - (v / maxY) * innerH;
 
@@ -112,6 +114,7 @@ export function renderBalanceChart(container: HTMLElement, schedule: ScheduleRow
     { key: "balance", cls: "line-balance", label: "Remaining balance" },
     { key: "principalPaid", cls: "line-principal", label: "Principal paid" },
     { key: "interestPaid", cls: "line-interest", label: "Interest paid" },
+    { key: "equity", cls: "line-equity", label: "Equity" },
   ];
   for (const s of series) {
     const d = points.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.month).toFixed(1)},${y(p[s.key]).toFixed(1)}`).join("");
