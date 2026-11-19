@@ -155,6 +155,9 @@ function render(): void {
       : `No PMI needed with ${formatPercent(downPct, 1)} down.`;
 
   const g = state.homeGrowth;
+  for (const chip of document.querySelectorAll<HTMLButtonElement>("[data-growth]")) {
+    chip.setAttribute("aria-pressed", String(Number(chip.dataset.growth) === g));
+  }
   $("growthHint").textContent =
     g === 0
       ? "0% keeps the home's value flat, so equity grows only as you pay down the loan."
@@ -353,6 +356,15 @@ function onChange(evt: Event): void {
 document.addEventListener("input", onChange);
 
 form.addEventListener("submit", (e) => e.preventDefault());
+
+// Growth presets set the input, then go through the normal input path.
+for (const chip of document.querySelectorAll<HTMLButtonElement>("[data-growth]")) {
+  chip.addEventListener("click", () => {
+    const input = $<HTMLInputElement>("homeGrowth");
+    input.value = chip.dataset.growth ?? "3";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
 
 $("shareBtn").addEventListener("click", async () => {
   const status = $("actionStatus");

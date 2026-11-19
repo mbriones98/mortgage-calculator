@@ -25,6 +25,7 @@ Checked 2026-11-18 against `src/mortgage.ts`, `src/tax.ts` and `src/storage.ts`.
 | 11 | Insurance | $1,800/yr | Portland **$1,850/yr** ($500k dwelling coverage); Oregon $2,065/yr | [NerdWallet, upd. Feb 20 2026](https://www.nerdwallet.com/insurance/homeowners/oregon-home-insurance) | **OK** |
 | 12 | Interest rate | 6.5% | **7.11%** 30-yr fixed (week of Nov 12, 2026); 15-yr 6.45% | [Freddie Mac PMMS](https://www.freddiemac.com/pmms) | **adjust** |
 | 13 | Home price | $400,000 | Portland metro median **$545,000** (Sept 2026, RMLS via secondary source) | [Cano Real Estate, Oct 2026 report](https://www.canorealestate.com/portland-metro-real-estate-market-report/) | **adjust** if the site is Portland-focused |
+| 14 | Home value growth (`homeGrowth`) | 3%/yr (no source) | Portland 20-yr CAGR **3.10%** (Case-Shiller, Aug 2006–Aug 2026), which is also the *lowest* 20-yr window in the series; FHFA 20-yr 3.60%; 10-yr 4.8–5.5%; last 3 yrs ~0.4–1.5%/yr. CPI over 20 yrs: 2.51%/yr | FRED [POXRNSA](https://fred.stlouisfed.org/series/POXRNSA), [ATNHPIUS38900Q](https://fred.stlouisfed.org/series/ATNHPIUS38900Q), [CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS) (CSVs downloaded 2026-11-18) | **OK — keep 3%**, add a source and range note |
 
 ---
 
@@ -232,3 +233,134 @@ Freddie Mac PMMS for the week of **Nov 12, 2026**: **30-yr fixed 7.11%** (down f
    - Better: end PMI at the earliest of (a) the baseline-schedule balance ≤ 78% × price, (b) the actual balance ≤ 80% × price (borrower request; make it a UI toggle), and (c) `termYears*12/2`. See §2.
 
 6. **Footnotes worth adding to the UI:** tax and insurance are held flat (no escalation); amounts aren't rounded to the cent; total PMI assumes no refinance.
+
+---
+
+## 14. Home value growth assumption
+
+*Follow-up check, 2026-11-18.* The calculator projects equity as `V·(1+g)^(k/12) − balance`, with `homeGrowth` (g) defaulting to 3%.
+
+**How sure:**
+- **High** for the historical growth rates (CAGRs). I downloaded the primary FRED CSVs and computed every number below myself; nothing comes from a secondary summary.
+- **Medium** for the forecasts. They come from news coverage of the forecasts, not the forecasters' own releases.
+
+Series used:
+- **Case-Shiller Portland:** S&P Case-Shiller OR-Portland Home Price Index, not seasonally adjusted. FRED `POXRNSA`, monthly, Jan 1987 → **Aug 2026** (latest).
+- **FHFA Portland:** FHFA All-Transactions House Price Index, Portland-Vancouver-Hillsboro MSA. FRED `ATNHPIUS38900Q`, quarterly, Q2 1976 → **Q2 2026** (latest).
+- **U.S. comparisons:** Case-Shiller U.S. National `CSUSHPINSA`; FHFA U.S. All-Transactions `USSTHPI`.
+- **Inflation:** CPI-U, not seasonally adjusted, `CPIAUCNS`.
+
+Method: CAGR = (end ÷ start)^(1/years) − 1. Each window uses the same calendar month (or quarter) at both ends, so seasonality cancels out. Both price indexes are repeat-sales, constant-quality measures, so unlike a median sale price they aren't skewed by the mix of homes sold. I did **not** compute anything from RMLS median-price history: RMLS reports aren't public raw data, and medians are noisier anyway.
+
+### 14.1 Portland long-run appreciation
+
+**Case-Shiller Portland**, window ending Aug 2026 (index 333.61):
+
+| Window | Start → End | Nominal CAGR | CPI CAGR | Real CAGR |
+|---|---|---|---|---|
+| 10 yr (Aug 2016) | 208.23 → 333.61 | **4.83%** | 3.35% | 1.42% |
+| 20 yr (Aug 2006) | 181.02 → 333.61 | **3.10%** | 2.51% | 0.58% |
+| 30 yr (Aug 1996) | 87.27 → 333.61 | **4.57%** | 2.55% | 1.97% |
+| Full series (Jan 1987, 39.6 yr) | 41.05 → 333.61 | **5.44%** | 2.83% | ~2.5% |
+
+**FHFA all-transactions, Portland MSA**, window ending Q2 2026 (index 455.85):
+
+| Window | Start → End | Nominal CAGR | CPI CAGR | Real CAGR |
+|---|---|---|---|---|
+| 10 yr (Q2 2016) | 266.92 → 455.85 | **5.50%** | 3.36% | 2.07% |
+| 20 yr (Q2 2006) | 224.87 → 455.85 | **3.60%** | 2.54% | 1.03% |
+| 30 yr (Q2 1996) | 111.50 → 455.85 | **4.81%** | 2.55% | 2.20% |
+| Full series (Q2 1976, 50 yr) | 28.41 → 455.85 | **5.71%** | 3.63% | ~2.0% |
+
+FHFA runs a little higher than Case-Shiller, probably because its all-transactions index includes refinance appraisals, which tend to come in high. Case-Shiller uses sales only.
+
+### 14.2 Recent trend and sensitivity to the start year
+
+Portland has been essentially flat for four years:
+
+- **Year-over-year change (Case-Shiller Portland):** −0.66% (Aug 2023), +0.78% (Aug 2024), +0.18% (Aug 2025), **+0.34% (Aug 2026)**.
+- **Multi-year:** 3-yr CAGR 0.43%/yr (FHFA: 1.48%); 5-yr CAGR 1.78%/yr (FHFA: 3.92%).
+- **Versus the peak:** Aug 2026 is still **2.5% below** the May 2022 high (342.23), a −0.60%/yr CAGR since that peak.
+- **In real terms,** Portland prices have fallen about 2.3–3.0%/yr over the last 1–5 years.
+
+The start year matters a lot:
+
+| Start point (Case-Shiller Portland) | Index | Years to Aug 2026 | CAGR |
+|---|---|---|---|
+| Jul 2007 peak | 186.51 | 19.1 | **3.09%** |
+| Mar 2012 trough | 129.01 | 14.4 | **6.81%** |
+| May 2022 peak | 342.23 | 4.3 | **−0.60%** |
+
+Rolling-window spread across all possible start months:
+- **Rolling 10-yr CAGR** (356 windows): min **1.38%** (starting Oct 2006), median **5.80%**, max **9.93%** (starting Apr 2012).
+- **Rolling 20-yr CAGR** (236 windows): min **3.10%** (starting Aug 2006, which is today's 20-yr window), median **4.48%**, max **7.80%** (starting May 1987).
+
+**So 3% is about the worst 20-year outcome Portland has seen since 1987.** Every 20-year window has delivered at least 3.10%/yr.
+
+### 14.3 National comparison and inflation
+
+| Window | Case-Shiller US | FHFA US (to Q2 2026) | Case-Shiller Portland | CPI-U |
+|---|---|---|---|---|
+| 1 yr | 2.09% | 3.03% | 0.34% | 3.40% |
+| 3 yr | 2.62% | 4.11% | 0.43% | 2.95% |
+| 5 yr | 4.62% | 7.16% | 1.78% | 4.13% |
+| 10 yr | 6.25% | 6.81% | 4.83% | 3.35% |
+| 20 yr | 3.06% | 3.36% | 3.10% | 2.51% |
+| 30 yr | 4.75% | 4.47% | 4.57% | 2.55% |
+
+The CPI column covers Case-Shiller's Aug–Aug windows; FHFA's Q2 windows have nearly identical CPI rates (§14.1).
+
+- Over 20–30 years, Portland has tracked the U.S. closely: about 3.1% and about 4.6% nominal.
+- Over the last 1–10 years Portland has lagged the U.S. by 1.5–3 points a year.
+- Long-run real (after-inflation) appreciation is about 0.5–2%/yr for both. So a nominal assumption of roughly CPI + 0.5–1 point is historically grounded.
+
+### 14.4 Forecasts (labeled as forecasts; secondary sources)
+
+All of these come from news coverage; I did not read the forecasters' own releases. They are national except where noted.
+
+| Forecaster | Release | Forecast |
+|---|---|---|
+| Fannie Mae ESR | Nov 12 2026 | HPI **+2.7% (2026), +0.6% (2027), +1.1% (2028)**, Q4 over Q4 ([coverage](https://www.unitedstatesrealestateinvestor.com/fannie-mae-november-2026-forecast-rates-7-2-percent-sales-starts-cut/)) |
+| Fannie Mae / Pulsenomics Home Price Expectations Survey | Q3 2026 | +2.5% (2026), +2.2% (2027), panel median ([Pulsenomics](https://pulsenomics.com/2026/08/home-price-expectations-survey-q3-recap/)) |
+| MBA | Oct 2026 | Growth slowing to ~0.5% by late 2027; median existing-home price ~$418k (2026) → ~$410k (2027) |
+| Zillow (U.S.) | Sep 2026 | +1.1% from Sep 2026 to Sep 2027 |
+| Zillow (Portland, OR) | Aug 2026 | Typical value $527,359, +0.3% year over year. **I found no citywide 1-yr Zillow forecast.** One ZIP (97232) shows −1.9% ([Zillow](https://www.zillow.com/home-values/13373/portland-or/)) |
+| NAR | — | No 2027 price forecast found |
+
+The consensus is roughly flat to +2% for 2027 nationally, and flat for Portland. Forecasters have a poor record at this horizon, and a 30-year mortgage projection is driven by long-run averages, not the next 12 months.
+
+### 14.5 Recommendation
+
+**Keep `homeGrowth` at 3% (nominal, per year). It's now backed by a source.**
+
+Why:
+- It matches Portland's **20-year CAGR of 3.10%** (Case-Shiller). That window starts at the 2006–07 peak, so it already includes the crash and the recent flat stretch.
+- No 20-year window since 1987 has come in lower, so it is conservative for long horizons.
+- It is below the 30-year (4.6–4.8%) and full-series (5.4–5.7%) averages, and below FHFA's 20-year figure (3.6%).
+- In real terms it is about **CPI + 0.5 points**: historically realistic, not optimistic.
+- It is *above* the recent trend and the 2027 forecasts. That's the right trade-off for a figure applied over a 15–30-year loan, as long as the UI says so (see below).
+- **Don't go higher** than 3% for a "conservative, explainable" default. Going lower (about 2–2.5%, roughly inflation-only) is defensible if you want the equity chart to be cautious; 2.5% would be the choice there.
+
+**Code comment / Sources line (paste-ready):**
+
+```
+// Default 3%/yr ≈ Portland's 20-yr home price CAGR (3.10%, Aug 2006–Aug 2026,
+// S&P Case-Shiller OR-Portland HPI, FRED POXRNSA; FHFA Portland MSA HPI 20-yr: 3.60%).
+// CPI-U over the same 20 yrs: 2.51%/yr. Retrieved 2026-11-18.
+```
+
+On-page Sources entry:
+
+> **Home value growth (default 3%/yr):** Portland-area home prices rose 3.1%/yr over the 20 years to Aug 2026 (S&P Case-Shiller OR-Portland Home Price Index, FRED series POXRNSA) and 3.6%/yr on the FHFA House Price Index for the Portland-Vancouver-Hillsboro MSA (FRED ATNHPIUS38900Q). Inflation (CPI-U) averaged 2.5%/yr over the same period.
+
+**UI range note: yes, show one.** Suggested helper text under the input:
+
+> *Portland home prices grew about 3.1%/yr over the last 20 years and 4.8%/yr over the last 10, but have been roughly flat (≈0–0.5%/yr) since 2022. Try 0% to see a flat market.*
+
+Optional: offer quick-pick chips at **0% / 3% / 5%**: flat recent trend / 20-yr average / 30-yr+ average.
+
+**Recommended changes (addendum):**
+
+7. **`src/storage.ts`:** keep `homeGrowth: 3`; add the comment above.
+8. **Sources section:** add the "Home value growth" entry above.
+9. **Growth input:** add the range helper text (and optionally the 0/3/5% chips). Note that it is a nominal rate, not adjusted for inflation.

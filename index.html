@@ -135,7 +135,13 @@
           <input id="homeGrowth" name="homeGrowth" type="number" min="-20" max="20" step="0.25" inputmode="decimal">
           <span class="suffix">%</span>
         </div>
+        <div class="chips" role="group" aria-label="Growth presets">
+          <button type="button" class="chip" data-growth="0">0% <span>flat, like 2022–26</span></button>
+          <button type="button" class="chip" data-growth="3">3% <span>20-yr avg</span></button>
+          <button type="button" class="chip" data-growth="5">5% <span>30-yr+ avg</span></button>
+        </div>
         <small id="growthHint" class="hint"></small>
+        <small class="hint">Portland home prices grew about 3.1%/yr over the last 20 years and 4.8%/yr over the last 10, but have been roughly flat (0–0.5%/yr) since 2022. Nominal rate, not adjusted for inflation.</small>
       </label>
 
       <h2>Pay it off faster</h2>
@@ -209,7 +215,7 @@
           <li><strong>Monthly payment</strong> (principal &amp; interest): <code>M = P × r ÷ (1 − (1 + r)<sup>−n</sup>)</code>, where <code>P</code> is the loan amount, <code>r</code> is the annual rate ÷ 12, and <code>n</code> is the number of monthly payments. At 0% interest it's simply <code>P ÷ n</code>.</li>
           <li><strong>Each month:</strong> interest = remaining balance × <code>r</code>; principal = <code>M</code> − interest; any extra payment goes entirely to principal. The final payment is reduced so the balance ends at exactly $0.</li>
           <li><strong>Lines on the chart</strong> (plotted at the end of each year): remaining balance; principal paid = loan amount − balance; interest paid = running total of interest; home value = price × (1 + g)<sup>years</sup> at your growth rate g; equity = home value − balance.</li>
-          <li><strong>Simplifications:</strong> home value grows at a constant rate you choose (an assumption, not a forecast), property tax and insurance held flat, no refinancing, and amounts aren't rounded to the cent each month like a lender's statement (lifetime totals may differ by a few dollars).</li>
+          <li><strong>Simplifications:</strong> home value grows at a constant rate you choose (default: Portland's 20-year average; an assumption, not a forecast), property tax and insurance held flat, no refinancing, and amounts aren't rounded to the cent each month like a lender's statement (lifetime totals may differ by a few dollars).</li>
         </ul>
 
         <h3>PMI rules</h3>
@@ -225,6 +231,7 @@
           <li><strong>U.S. average property tax, 0.9%:</strong> NAHB, <a href="https://eyeonhousing.org/2025/11/property-taxes-by-state-2024/" target="_blank" rel="noopener"><cite>Property Taxes by State, 2024</cite></a> (Nov 2025; 0.89%).</li>
           <li><strong>Default interest rate, 7.1%:</strong> Freddie Mac <a href="https://www.freddiemac.com/pmms" target="_blank" rel="noopener">Primary Mortgage Market Survey</a>, 30-year fixed average, week of Nov 12, 2026. This default doesn't update automatically.</li>
           <li><strong>Default home price, $545,000:</strong> RMLS Portland-metro median sale price, Sept 2026, as reported by <a href="https://www.canorealestate.com/portland-metro-real-estate-market-report/" target="_blank" rel="noopener">Cano Real Estate</a> (Oct 2026).</li>
+          <li><strong>Home value growth (default 3%/yr):</strong> Portland-area home prices rose 3.1%/yr over the 20 years to Aug 2026 (S&amp;P Case-Shiller OR-Portland Home Price Index, FRED series <a href="https://fred.stlouisfed.org/series/POXRNSA" target="_blank" rel="noopener">POXRNSA</a>) and 3.6%/yr on the FHFA House Price Index for the Portland-Vancouver-Hillsboro MSA (FRED <a href="https://fred.stlouisfed.org/series/ATNHPIUS38900Q" target="_blank" rel="noopener">ATNHPIUS38900Q</a>). Inflation (CPI-U, <a href="https://fred.stlouisfed.org/series/CPIAUCNS" target="_blank" rel="noopener">CPIAUCNS</a>) averaged 2.5%/yr over the same period. That 20-year window starts at the 2006 peak and is the lowest of any 20-year window since 1987.</li>
           <li><strong>Default home insurance, $1,850/yr:</strong> NerdWallet, <a href="https://www.nerdwallet.com/insurance/homeowners/oregon-home-insurance" target="_blank" rel="noopener">Oregon home insurance rates</a> (Portland average, updated Feb 2026).</li>
           <li><strong>PMI range, 0.3%–1.5%:</strong> Urban Institute figures via <a href="https://www.hawaiinewsnow.com/bankrate-article/2026/08/11/pmi-got-you-into-your-home-it-shouldnt-overstay-its-welcome/" target="_blank" rel="noopener">Bankrate</a> (Aug 2026) and Freddie Mac, <a href="https://myhome.freddiemac.com/buying/breaking-down-pmi" target="_blank" rel="noopener">Breaking down PMI</a>.</li>
         </ul>

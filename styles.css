@@ -335,3 +335,18 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--grid) 40%, trans
 .math-panel .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; margin: 8px 0; }
 .math-panel .katex { font-size: 1.05em; }
 .tex-fallback { white-space: pre-wrap; font-size: 0.8rem; color: var(--muted); margin: 6px 0; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+.chip span { font-weight: 400; color: var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }

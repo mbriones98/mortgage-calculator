@@ -43,7 +43,10 @@ export const DEFAULT_STATE: FormState = {
   extraMonthly: 0,
   scheduleView: "yearly",
   showMath: false,
-  homeGrowth: 3,           // assumption, not a forecast; user-adjustable
+  // Default 3%/yr ≈ Portland's 20-yr home price CAGR (3.10%, Aug 2006–Aug 2026,
+  // S&P Case-Shiller OR-Portland HPI, FRED POXRNSA; FHFA Portland MSA HPI 20-yr: 3.60%).
+  // CPI-U over the same 20 yrs: 2.51%/yr. Retrieved 2026-11-18. See FACTCHECK.md §14.
+  homeGrowth: 3,
 };
 
 /** Merges untrusted data into a valid FormState, keeping defaults for anything malformed. */
