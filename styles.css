@@ -192,6 +192,13 @@ input[readonly] { color: var(--muted); }
 .eyebrow { margin: 0; color: var(--muted); font-size: 0.85rem; font-weight: 550; }
 .big-number { margin: 4px 0 16px; font-size: 2.6rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); margin-top: 0; }
+.fine-print a { color: var(--accent); }
+.prose { font-size: 0.9rem; }
+.prose h3 { font-size: 0.95rem; margin: 18px 0 6px; }
+.prose p { margin: 0 0 8px; }
+.prose ul { margin: 0 0 8px; padding-left: 20px; display: grid; gap: 6px; }
+.prose a { color: var(--accent); }
+.prose code { font-size: 0.85em; background: color-mix(in srgb, var(--grid) 70%, transparent); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
 .advanced {
   border: 1px solid var(--border);
   border-radius: 8px;

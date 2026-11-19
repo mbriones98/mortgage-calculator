@@ -154,13 +154,13 @@
         <div class="tax-figures" id="taxFigures"></div>
         <div id="taxStrip"></div>
         <p id="oregonNote" class="callout" hidden>In Oregon, property tax is based on the home's <em>assessed value</em>, which does not reset when the home sells. Two homes with the same price can have very different tax bills. For an accurate number, open <strong>Advanced</strong> under the ZIP code, switch to <strong>$</strong>, and enter the current tax bill from the listing or <a href="https://www.portlandmaps.com/" target="_blank" rel="noopener">PortlandMaps</a>.</p>
-        <p class="fine-print">Estimates use average effective property tax rates (Tax Foundation 2026, from 2024 Census ACS data), with county-level rates for Portland and Vancouver ZIPs. Your actual rate may differ a lot. Check your local assessor and override the rate above if you know it.</p>
+        <p class="fine-print">Estimates use average effective property tax rates (Tax Foundation 2026, from 2024 Census ACS data), with county-level rates for Portland and Vancouver ZIPs. Your actual rate may differ a lot. Check your local assessor and override the rate above if you know it. <a href="#methodology">Sources</a>.</p>
       </div>
 
       <div class="card">
         <h2>Balance over time</h2>
         <div id="balanceChart"></div>
-        <p class="fine-print">Equity is the home price minus what you still owe. It assumes the home's value stays flat; appreciation would add to it.</p>
+        <p class="fine-print">Model: standard fixed-rate, fully amortizing loan with monthly compounding (the annuity formula lenders use). Equity is the home price minus what you still owe, assuming the home's value stays flat. <a href="#methodology">How this is calculated</a>.</p>
       </div>
 
       <div class="card">
@@ -180,6 +180,37 @@
           </table>
         </div>
         <p class="fine-print">Equity assumes the home's value stays at the purchase price.</p>
+      </div>
+
+      <div class="card prose" id="methodology">
+        <h2>Sources &amp; methodology</h2>
+
+        <h3>Balance over time: the loan model</h3>
+        <p>The chart and schedule use a <strong>fixed-rate, fully amortizing mortgage</strong> with monthly compounding. This is the standard annuity model used for U.S. fixed-rate home loans.</p>
+        <ul>
+          <li><strong>Monthly payment</strong> (principal &amp; interest): <code>M = P × r ÷ (1 − (1 + r)<sup>−n</sup>)</code>, where <code>P</code> is the loan amount, <code>r</code> is the annual rate ÷ 12, and <code>n</code> is the number of monthly payments. At 0% interest it's simply <code>P ÷ n</code>.</li>
+          <li><strong>Each month:</strong> interest = remaining balance × <code>r</code>; principal = <code>M</code> − interest; any extra payment goes entirely to principal. The final payment is reduced so the balance ends at exactly $0.</li>
+          <li><strong>Lines on the chart</strong> (plotted at the end of each year): remaining balance; principal paid = loan amount − balance; interest paid = running total of interest; equity = home price − balance.</li>
+          <li><strong>Simplifications:</strong> no home appreciation, property tax and insurance held flat, no refinancing, and amounts aren't rounded to the cent each month like a lender's statement (lifetime totals may differ by a few dollars).</li>
+        </ul>
+
+        <h3>PMI rules</h3>
+        <p>PMI applies when the loan is more than 80% of the home price, priced as an annual percentage of the original loan amount. It ends at the earliest of: the original schedule reaching 78% of the home price (automatic), the actual balance reaching 80% (only if you request it), or the midpoint of the loan term. Source: Homeowners Protection Act, <a href="https://www.law.cornell.edu/uscode/text/12/4901" target="_blank" rel="noopener">12 U.S.C. §4901</a> and <a href="https://www.law.cornell.edu/uscode/text/12/4902" target="_blank" rel="noopener">§4902</a>.</p>
+
+        <h3>Data sources</h3>
+        <ul>
+          <li><strong>State property tax rates:</strong> Tax Foundation, <a href="https://taxfoundation.org/data/all/state/property-taxes-by-state-county/" target="_blank" rel="noopener"><cite>Property Taxes by State and County, 2026</cite></a> (Mar 2026; U.S. Census 2024 American Community Survey data). These are effective rates: taxes paid as a percent of home value.</li>
+          <li><strong>Portland (Multnomah County) rate, 1.15%:</strong> Oregon Department of Revenue, <a href="https://www.oregon.gov/dor/programs/gov-research/Documents/FY%202025-26%20Oregon%20Property%20Tax%20Statistics%20Report-UA.pdf" target="_blank" rel="noopener"><cite>Oregon Property Tax Statistics, FY 2025-26</cite></a> (Multnomah tax ÷ real market value = 1.20%; also the source for the Measure 5/50 assessed-value rules).</li>
+          <li><strong>Vancouver (Clark County) rate, 0.95%:</strong> City of Vancouver 2025 property tax levy rates ($9.69–$10.10 per $1,000 of assessed value).</li>
+          <li><strong>Which ZIPs get county rates:</strong> U.S. Census Bureau, <a href="https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/" target="_blank" rel="noopener">2020 ZCTA-to-county relationship file</a>. A ZIP is included if at least 70% of its land area lies in the county.</li>
+          <li><strong>ZIP → state:</strong> USPS 3-digit ZIP prefix assignments.</li>
+          <li><strong>U.S. average property tax, 0.9%:</strong> NAHB, <a href="https://eyeonhousing.org/2025/11/property-taxes-by-state-2024/" target="_blank" rel="noopener"><cite>Property Taxes by State, 2024</cite></a> (Nov 2025; 0.89%).</li>
+          <li><strong>Default interest rate, 7.1%:</strong> Freddie Mac <a href="https://www.freddiemac.com/pmms" target="_blank" rel="noopener">Primary Mortgage Market Survey</a>, 30-year fixed average, week of Nov 12, 2026. This default doesn't update automatically.</li>
+          <li><strong>Default home price, $545,000:</strong> RMLS Portland-metro median sale price, Sept 2026, as reported by <a href="https://www.canorealestate.com/portland-metro-real-estate-market-report/" target="_blank" rel="noopener">Cano Real Estate</a> (Oct 2026).</li>
+          <li><strong>Default home insurance, $1,850/yr:</strong> NerdWallet, <a href="https://www.nerdwallet.com/insurance/homeowners/oregon-home-insurance" target="_blank" rel="noopener">Oregon home insurance rates</a> (Portland average, updated Feb 2026).</li>
+          <li><strong>PMI range, 0.3%–1.5%:</strong> Urban Institute figures via <a href="https://www.hawaiinewsnow.com/bankrate-article/2026/08/11/pmi-got-you-into-your-home-it-shouldnt-overstay-its-welcome/" target="_blank" rel="noopener">Bankrate</a> (Aug 2026) and Freddie Mac, <a href="https://myhome.freddiemac.com/buying/breaking-down-pmi" target="_blank" rel="noopener">Breaking down PMI</a>.</li>
+        </ul>
+        <p class="fine-print">Data last checked Nov 18, 2026. Full fact-check notes are in <a href="https://github.com/mbriones98/mortgage-calculator/blob/main/FACTCHECK.md" target="_blank" rel="noopener">FACTCHECK.md</a>.</p>
       </div>
     </section>
   </main>
