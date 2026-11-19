@@ -71,6 +71,7 @@ export interface MathContext {
   pmiRequestCancel: boolean;
   hoaMonthly: number;
   extraMonthly: number;
+  homeGrowth: number;   // percent per year
 }
 
 // ---------------------------------------------------------------------------
@@ -206,13 +207,14 @@ export function balanceMath(c: MathContext): string {
       B_k &= B_{k-1} - \\text{principal}_k - x
       \\end{aligned}`,
     )}
-    <p>where ${t("x")} is your extra monthly principal (${t(usd(x, 0))}). The four lines on the chart are</p>
+    <p>where ${t("x")} is your extra monthly principal (${t(usd(x, 0))}). The five lines on the chart are</p>
     ${tex(
-      `\\underbrace{B_k}_{\\text{balance}}, \\qquad \\underbrace{P - B_k}_{\\text{principal paid}}, \\qquad \\underbrace{\\textstyle\\sum_{j\\le k} \\text{interest}_j}_{\\text{interest paid}}, \\qquad \\underbrace{V - B_k}_{\\text{equity}}`,
+      `\\underbrace{B_k}_{\\text{balance}}, \\quad \\underbrace{P - B_k}_{\\text{principal paid}}, \\quad \\underbrace{\\textstyle\\sum_{j\\le k} \\text{interest}_j}_{\\text{interest paid}}, \\quad \\underbrace{V_k}_{\\text{home value}}, \\quad \\underbrace{V_k - B_k}_{\\text{equity}}`,
     )}
-    <p>Equity starts at your down payment ${t(`V - P = ${usd(V - P, 0)}`)} and assumes the home's value ${t("V")} stays constant.</p>`,
+    <p>Equity starts at your down payment ${t(`V - P = ${usd(V - P, 0)}`)}.</p>`,
   );
 
+  html += equityMath(c);
   if (P <= 0 || r === 0) return html;
 
   // Principal portion grows geometrically (without extra payments).
@@ -251,14 +253,37 @@ export function balanceMath(c: MathContext): string {
   return html;
 }
 
+function equityMath(c: MathContext): string {
+  const V = c.homePrice;
+  const g = c.homeGrowth / 100;
+  const R = c.result;
+  const k = R.payoffMonths;
+  const Vk = V * Math.pow(1 + g, k / 12);
+  const at10 = k > 120;
+  const V120 = V * Math.pow(1 + g, 10);
+  const B120 = R.schedule[119]?.balance ?? 0;
+  return section(
+    "Future home value and equity",
+    `<p>The home's value compounds at your annual growth rate ${t(`g = ${num(c.homeGrowth, 2)}\\%`)}. Using a fractional exponent makes each full year multiply the value by exactly ${t("1+g")} (equivalently, a monthly factor of ${t("(1+g)^{1/12}")}):</p>
+    ${tex("V_k = V\\,(1+g)^{k/12}, \\qquad E_k = V_k - B_k = \\underbrace{(V_k - V)}_{\\text{appreciation}} + \\underbrace{(V - P)}_{\\text{down payment}} + \\underbrace{(P - B_k)}_{\\text{principal paid}}")}
+    ${
+      at10
+        ? tex(`k = 120:\\quad E_{120} = ${usd(V, 0)}(1 + ${num(g, 4)})^{10} - ${usd(B120, 0)} = ${usd(V120, 0)} - ${usd(B120, 0)} = ${usd(V120 - B120, 0)}`)
+        : ""
+    }
+    ${tex(`k = ${k} \\text{ (payoff)}:\\quad E_{${k}} = V_{${k}} = ${usd(V, 0)}(1 + ${num(g, 4)})^{${num(k / 12, 2)}} = ${usd(Vk, 0)}`)}
+    <p>A constant ${t("g")} is a modeling assumption, not a forecast. Real prices move in cycles and can fall.</p>`,
+  );
+}
+
 export function scheduleMath(c: MathContext): string {
   const r = c.annualRate / 100 / 12;
   return section(
     "How each row is computed",
     `<p>Monthly rows apply the recurrence directly (${t(`r = ${num(r, 6)}`)}):</p>
     ${tex("\\text{interest}_k = rB_{k-1}, \\quad \\text{principal}_k = \\min(M - \\text{interest}_k,\\; B_{k-1}), \\quad B_k = B_{k-1} - \\text{principal}_k - x_k")}
-    <p>The ${t("\\min")} makes the final payment exactly clear the balance. Yearly rows sum the 12 monthly values for principal, interest, extra and PMI, and report the balance and equity after the year's last payment. Equity is ${t(
-      "E_k = V - B_k",
-    )}.</p>`,
+    <p>The ${t("\\min")} makes the final payment exactly clear the balance. Yearly rows sum the 12 monthly values for principal, interest, extra and PMI, and report the balance, home value and equity after the year's last payment. Home value is ${t(
+      "V_k = V(1+g)^{k/12}",
+    )} and equity is ${t("E_k = V_k - B_k")}.</p>`,
   );
 }

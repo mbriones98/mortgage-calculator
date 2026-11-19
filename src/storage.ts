@@ -21,6 +21,7 @@ export interface FormState {
   extraMonthly: number;
   scheduleView: "yearly" | "monthly";
   showMath: boolean;
+  homeGrowth: number;     // percent per year; may be negative
 }
 
 // Defaults are tuned for the Portland, OR metro (sources in FACTCHECK.md).
@@ -42,6 +43,7 @@ export const DEFAULT_STATE: FormState = {
   extraMonthly: 0,
   scheduleView: "yearly",
   showMath: false,
+  homeGrowth: 3,           // assumption, not a forecast; user-adjustable
 };
 
 /** Merges untrusted data into a valid FormState, keeping defaults for anything malformed. */
@@ -52,7 +54,10 @@ function sanitize(raw: Record<string, unknown>): FormState {
     if (value === undefined || value === null) continue;
     const fallback = DEFAULT_STATE[key];
 
-    if (typeof fallback === "number") {
+    if (key === "homeGrowth") {
+      const n = Number(value);
+      if (Number.isFinite(n) && n > -100 && n <= 100) out.homeGrowth = n;
+    } else if (typeof fallback === "number") {
       const n = Number(value);
       if (Number.isFinite(n) && n >= 0) (out[key] as number) = n;
     } else if (typeof fallback === "boolean") {

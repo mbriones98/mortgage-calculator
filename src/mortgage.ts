@@ -56,6 +56,14 @@ export const PMI_REQUIRED_LTV = 0.8;
 export const PMI_AUTO_TERMINATE_LTV = 0.78;
 export const PMI_REQUEST_CANCEL_LTV = 0.8;
 
+/**
+ * Projected home value after `month` months at an annual growth rate (percent),
+ * compounded so that a full year multiplies the value by exactly (1 + g).
+ */
+export function homeValueAt(homePrice: number, annualGrowth: number, month: number): number {
+  return homePrice * Math.pow(1 + annualGrowth / 100, month / 12);
+}
+
 /** Standard amortized monthly payment (principal + interest). */
 export function monthlyPI(principal: number, annualRate: number, termYears: number): number {
   const n = termYears * 12;

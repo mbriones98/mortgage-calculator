@@ -1,4 +1,4 @@
-import { calculate, PMI_AUTO_TERMINATE_LTV, PMI_REQUEST_CANCEL_LTV, PMI_REQUIRED_LTV, type LoanInputs, type LoanResult, type ScheduleRow } from "./mortgage.js";
+import { calculate, homeValueAt, PMI_AUTO_TERMINATE_LTV, PMI_REQUEST_CANCEL_LTV, PMI_REQUIRED_LTV, type LoanInputs, type LoanResult, type ScheduleRow } from "./mortgage.js";
 import { allStates, lookupZip, NATIONAL_AVERAGE_RATE } from "./tax.js";
 import { clearState, DEFAULT_STATE, loadState, saveState, shareUrl, type FormState } from "./storage.js";
 import { renderBalanceChart, renderBreakdown, renderTaxStrip } from "./charts.js";
@@ -30,6 +30,11 @@ function readNumber(id: string): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
+function readSigned(id: string): number {
+  const n = $<HTMLInputElement>(id).valueAsNumber;
+  return Number.isFinite(n) && n > -100 ? n : 0;
+}
+
 // ---------------------------------------------------------------------------
 // State <-> form
 // ---------------------------------------------------------------------------
@@ -43,6 +48,7 @@ function writeForm(s: FormState): void {
   $<HTMLInputElement>("taxRateAuto").checked = s.taxRateAuto;
   $<HTMLInputElement>("pmiRequestCancel").checked = s.pmiRequestCancel;
   $<HTMLInputElement>("showMath").checked = s.showMath;
+  $<HTMLInputElement>("homeGrowth").value = String(s.homeGrowth);
   for (const r of radios("taxMode")) r.checked = r.value === s.taxMode;
   for (const r of radios("downMode")) r.checked = r.value === s.downMode;
   for (const r of radios("scheduleView")) r.checked = r.value === s.scheduleView;
@@ -68,6 +74,7 @@ function readForm(): FormState {
     extraMonthly: readNumber("extraMonthly"),
     scheduleView: checked("scheduleView") === "monthly" ? "monthly" : "yearly",
     showMath: $<HTMLInputElement>("showMath").checked,
+    homeGrowth: readSigned("homeGrowth"),
   };
 }
 
@@ -147,12 +154,18 @@ function render(): void {
       ? `PMI applies because you're putting down less than ${pct(1 - PMI_REQUIRED_LTV)}. By law it ends automatically when your original schedule reaches ${pct(PMI_AUTO_TERMINATE_LTV)} of the home price (extra payments don't speed that up), or earlier if you ask once your balance reaches ${pct(PMI_REQUEST_CANCEL_LTV)}.`
       : `No PMI needed with ${formatPercent(downPct, 1)} down.`;
 
+  const g = state.homeGrowth;
+  $("growthHint").textContent =
+    g === 0
+      ? "0% keeps the home's value flat, so equity grows only as you pay down the loan."
+      : `${formatCurrency(state.homePrice)} grows to about ${formatCurrency(homeValueAt(state.homePrice, g, 120))} in 10 years. This is an assumption, not a forecast.`;
+
   $("monthlyTotal").textContent = formatCurrency(result.monthly.total);
   renderBreakdown($("breakdown"), result.monthly);
   renderStats(result);
   renderTax(result, zipInfo);
-  renderBalanceChart($("balanceChart"), result.schedule, result.loanAmount, state.homePrice);
-  renderSchedule(result.schedule, state.scheduleView, state.homePrice);
+  renderBalanceChart($("balanceChart"), result.schedule, result.loanAmount, state.homePrice, state.homeGrowth);
+  renderSchedule(result.schedule, state.scheduleView, state.homePrice, state.homeGrowth);
   renderMath(result);
 }
 
@@ -182,6 +195,7 @@ function renderMath(result: LoanResult): void {
     pmiRequestCancel: state.pmiRequestCancel,
     hoaMonthly: state.hoaMonthly,
     extraMonthly: state.extraMonthly,
+    homeGrowth: state.homeGrowth,
   };
   for (const [id, build] of MATH_PANELS) $(id).innerHTML = build(ctx);
 }
@@ -208,6 +222,15 @@ function renderStats(r: LoanResult): void {
     stat("Total of P&I payments", formatCurrency(totalPI)),
     stat("Payoff", formatDuration(r.payoffMonths), `about ${payoffDate(r.payoffMonths)} if you start this month`),
   ];
+  if (r.payoffMonths > 0) {
+    const value = homeValueAt(state.homePrice, state.homeGrowth, r.payoffMonths);
+    parts.push(stat("Equity at payoff", formatCurrency(value), `home value at ${formatPercent(state.homeGrowth)}/yr growth`));
+    if (r.payoffMonths > 120) {
+      const v10 = homeValueAt(state.homePrice, state.homeGrowth, 120);
+      const b10 = r.schedule[119]?.balance ?? 0;
+      parts.push(stat("Equity after 10 years", formatCurrency(v10 - b10), `${formatCurrency(v10)} value − ${formatCurrency(b10)} owed`));
+    }
+  }
   if (r.totalPmi > 0) {
     const pmiMonths = r.schedule.filter((row) => row.pmi > 0).length;
     parts.push(stat("Total PMI", formatCurrency(r.totalPmi), `paid for ${formatDuration(pmiMonths)}`));
@@ -244,11 +267,11 @@ function renderTax(r: LoanResult, zipInfo: ReturnType<typeof lookupZip>): void {
   renderTaxStrip($("taxStrip"), allStates(), zipInfo, effectiveTaxRate(state));
 }
 
-function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"], homePrice: number): void {
+function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"], homePrice: number, growth: number): void {
   $("periodHeader").textContent = view === "yearly" ? "Year" : "Month";
   const tbody = $<HTMLTableElement>("schedule").tBodies[0]!;
 
-  type Row = { label: string; principal: number; interest: number; extra: number; pmi: number; balance: number };
+  type Row = { label: string; month: number; principal: number; interest: number; extra: number; pmi: number; balance: number };
   let rows: Row[];
   if (view === "monthly") {
     rows = schedule.map((r) => ({ label: String(r.month), ...r }));
@@ -258,7 +281,7 @@ function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"]
       const yr = Math.ceil(r.month / 12);
       let row = rows[yr - 1];
       if (!row) {
-        row = { label: String(yr), principal: 0, interest: 0, extra: 0, pmi: 0, balance: 0 };
+        row = { label: String(yr), month: 0, principal: 0, interest: 0, extra: 0, pmi: 0, balance: 0 };
         rows.push(row);
       }
       row.principal += r.principal;
@@ -266,13 +289,15 @@ function renderSchedule(schedule: ScheduleRow[], view: FormState["scheduleView"]
       row.extra += r.extra;
       row.pmi += r.pmi;
       row.balance = r.balance;
+      row.month = r.month;
     }
   }
 
   const frag = document.createDocumentFragment();
   for (const row of rows) {
     const tr = document.createElement("tr");
-    for (const v of [row.label, row.principal, row.interest, row.extra, row.pmi, row.balance, homePrice - row.balance]) {
+    const value = homeValueAt(homePrice, growth, row.month);
+    for (const v of [row.label, row.principal, row.interest, row.extra, row.pmi, row.balance, value, value - row.balance]) {
       const td = document.createElement("td");
       td.textContent = typeof v === "string" ? v : formatCurrency(v, view === "monthly");
       tr.append(td);

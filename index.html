@@ -128,6 +128,16 @@
       </label>
       <small id="pmiHint" class="hint"></small>
 
+      <h2>Home value &amp; equity</h2>
+      <label class="field">
+        <span>Home value growth (per year)</span>
+        <div class="input-affix">
+          <input id="homeGrowth" name="homeGrowth" type="number" min="-20" max="20" step="0.25" inputmode="decimal">
+          <span class="suffix">%</span>
+        </div>
+        <small id="growthHint" class="hint"></small>
+      </label>
+
       <h2>Pay it off faster</h2>
       <label class="field">
         <span>Extra principal (per month)</span>
@@ -167,7 +177,7 @@
         <h2>Balance over time</h2>
         <div id="balanceChart"></div>
         <div class="math-panel" id="mathBalance" hidden></div>
-        <p class="fine-print">Model: standard fixed-rate, fully amortizing loan with monthly compounding (the annuity formula lenders use). Equity is the home price minus what you still owe, assuming the home's value stays flat. <a href="#methodology">How this is calculated</a>.</p>
+        <p class="fine-print">Model: standard fixed-rate, fully amortizing loan with monthly compounding (the annuity formula lenders use). Equity is the projected home value (at your growth rate) minus what you still owe. <a href="#methodology">How this is calculated</a>.</p>
       </div>
 
       <div class="card">
@@ -181,12 +191,12 @@
         <div class="table-wrap">
           <table id="schedule">
             <thead>
-              <tr><th id="periodHeader">Year</th><th>Principal</th><th>Interest</th><th>Extra</th><th>PMI</th><th>Balance</th><th>Equity</th></tr>
+              <tr><th id="periodHeader">Year</th><th>Principal</th><th>Interest</th><th>Extra</th><th>PMI</th><th>Balance</th><th>Home value</th><th>Equity</th></tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="fine-print">Equity assumes the home's value stays at the purchase price.</p>
+        <p class="fine-print">Home value grows at your growth rate; equity = home value − balance.</p>
         <div class="math-panel" id="mathSchedule" hidden></div>
       </div>
 
@@ -198,8 +208,8 @@
         <ul>
           <li><strong>Monthly payment</strong> (principal &amp; interest): <code>M = P × r ÷ (1 − (1 + r)<sup>−n</sup>)</code>, where <code>P</code> is the loan amount, <code>r</code> is the annual rate ÷ 12, and <code>n</code> is the number of monthly payments. At 0% interest it's simply <code>P ÷ n</code>.</li>
           <li><strong>Each month:</strong> interest = remaining balance × <code>r</code>; principal = <code>M</code> − interest; any extra payment goes entirely to principal. The final payment is reduced so the balance ends at exactly $0.</li>
-          <li><strong>Lines on the chart</strong> (plotted at the end of each year): remaining balance; principal paid = loan amount − balance; interest paid = running total of interest; equity = home price − balance.</li>
-          <li><strong>Simplifications:</strong> no home appreciation, property tax and insurance held flat, no refinancing, and amounts aren't rounded to the cent each month like a lender's statement (lifetime totals may differ by a few dollars).</li>
+          <li><strong>Lines on the chart</strong> (plotted at the end of each year): remaining balance; principal paid = loan amount − balance; interest paid = running total of interest; home value = price × (1 + g)<sup>years</sup> at your growth rate g; equity = home value − balance.</li>
+          <li><strong>Simplifications:</strong> home value grows at a constant rate you choose (an assumption, not a forecast), property tax and insurance held flat, no refinancing, and amounts aren't rounded to the cent each month like a lender's statement (lifetime totals may differ by a few dollars).</li>
         </ul>
 
         <h3>PMI rules</h3>

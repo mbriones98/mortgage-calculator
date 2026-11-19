@@ -60,7 +60,8 @@ There is no test suite yet. Verify math changes by importing the compiled module
 
 All figures were fact-checked on 2026-11-18. Start with **[`FACTCHECK.md`](FACTCHECK.md)**, which has a summary table, the reasoning for each item, and links. Key points:
 
-- **Loan model:** standard fixed-rate, fully amortizing annuity formula with monthly compounding. Equity = home price − balance (no appreciation).
+- **Loan model:** standard fixed-rate, fully amortizing annuity formula with monthly compounding.
+- **Equity:** projected home value minus balance, where value = price × (1 + g)^(months/12) at a user-entered annual growth rate `g` (`homeGrowth`, default 3%, may be negative). The 3% default is an assumption, not a sourced forecast.
 - **PMI:** follows the Homeowners Protection Act ([12 U.S.C. §4901](https://www.law.cornell.edu/uscode/text/12/4901), [§4902](https://www.law.cornell.edu/uscode/text/12/4902)). PMI ends at the earliest of 78% LTV on the *original* schedule (automatic), 80% of the *actual* balance (on request; a user toggle), or the loan midpoint.
 - **State tax rates:** [Tax Foundation, Property Taxes by State and County, 2026](https://taxfoundation.org/data/all/state/property-taxes-by-state-county/) (2024 ACS). Some states not flagged as stale are from the prior edition.
 - **Portland (Multnomah) 1.15%:** [Oregon DOR, Property Tax Statistics FY 2025-26](https://www.oregon.gov/dor/programs/gov-research/Documents/FY%202025-26%20Oregon%20Property%20Tax%20Statistics%20Report-UA.pdf) (1.20% of real market value). This matched a real Portland estimate ($600/mo on a $625k home).
@@ -72,5 +73,5 @@ All figures were fact-checked on 2026-11-18. Start with **[`FACTCHECK.md`](FACTC
 
 - Most state rates outside the refreshed set should be updated from the Tax Foundation 2026 table in one pass.
 - No automated tests. A small `node:test` suite over `dist/js/mortgage.js` would be a good first addition.
-- No appreciation, tax, or insurance escalation inputs.
+- No tax or insurance escalation inputs (home value growth exists; taxes and insurance stay flat).
 - GitHub Actions in `deploy.yml` run on Node 20 action versions, which triggers a deprecation warning. Bump them when convenient.

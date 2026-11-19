@@ -271,16 +271,19 @@ input[readonly] { color: var(--muted); }
 .chart .line-principal { stroke: var(--c-ins); }
 .chart .line-interest { stroke: var(--c-tax); }
 .chart .line-equity { stroke: var(--c-equity); }
+.chart .line-value { stroke: var(--muted); stroke-dasharray: 6 4; stroke-width: 2; }
 .chart .dot { stroke: var(--surface); stroke-width: 2; }
 .chart .dot.line-balance { fill: var(--c-pi); }
 .chart .dot.line-principal { fill: var(--c-ins); }
 .chart .dot.line-interest { fill: var(--c-tax); }
 .chart .dot.line-equity { fill: var(--c-equity); }
+.chart .dot.line-value { fill: var(--muted); stroke-dasharray: none; }
 .chart .hover-rule { stroke: var(--muted); stroke-dasharray: 3 3; }
 .swatch.line-balance { background: var(--c-pi); }
 .swatch.line-principal { background: var(--c-ins); }
 .swatch.line-interest { background: var(--c-tax); }
 .swatch.line-equity { background: var(--c-equity); }
+.swatch.line-value { background: repeating-linear-gradient(90deg, var(--muted) 0 4px, transparent 4px 6px); }
 
 .chart .tick { stroke: var(--muted); stroke-width: 2; opacity: 0.35; }
 .chart .tick-selected { stroke: var(--c-tax); opacity: 1; stroke-width: 3; }
