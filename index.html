@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mortgage Calculator</title>
+  <meta name="description" content="Estimate your monthly mortgage payment, property tax by ZIP code, and full amortization schedule.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>Mortgage Calculator</h1>
+    <p class="subtitle">Monthly payment, property tax by ZIP, and amortization. Your inputs are saved in this browser.</p>
+  </header>
+
+  <main class="layout">
+    <form id="form" class="card inputs" autocomplete="off" novalidate>
+      <h2>Loan details</h2>
+
+      <label class="field">
+        <span>Home price</span>
+        <div class="input-affix"><span class="prefix">$</span>
+          <input id="homePrice" name="homePrice" type="number" min="0" step="1000" inputmode="decimal">
+        </div>
+      </label>
+
+      <div class="field">
+        <span id="downLabel">Down payment</span>
+        <div class="input-row">
+          <div class="input-affix grow">
+            <span class="prefix" id="downPrefix">$</span>
+            <input id="downValue" name="downValue" type="number" min="0" step="any" inputmode="decimal" aria-labelledby="downLabel">
+            <span class="suffix" id="downSuffix">%</span>
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="Down payment unit">
+            <label><input type="radio" name="downMode" value="amount"><span>$</span></label>
+            <label><input type="radio" name="downMode" value="percent"><span>%</span></label>
+          </div>
+        </div>
+        <small id="downHint" class="hint"></small>
+      </div>
+
+      <div class="two-col">
+        <label class="field">
+          <span>Interest rate</span>
+          <div class="input-affix">
+            <input id="annualRate" name="annualRate" type="number" min="0" max="30" step="0.125" inputmode="decimal">
+            <span class="suffix">%</span>
+          </div>
+        </label>
+        <label class="field">
+          <span>Loan term</span>
+          <select id="termYears" name="termYears">
+            <option value="10">10 years</option>
+            <option value="15">15 years</option>
+            <option value="20">20 years</option>
+            <option value="30">30 years</option>
+          </select>
+        </label>
+      </div>
+
+      <h2>Taxes &amp; costs</h2>
+
+      <label class="field">
+        <span>ZIP code</span>
+        <input id="zip" name="zip" type="text" inputmode="numeric" maxlength="5" placeholder="e.g. 97214">
+        <small id="zipStatus" class="hint"></small>
+      </label>
+
+      <div class="field">
+        <span id="taxLabel">Property tax (per year)</span>
+        <div class="input-row">
+          <div class="input-affix grow" id="taxRateWrap">
+            <input id="taxRate" name="taxRate" type="number" min="0" max="10" step="0.01" inputmode="decimal" aria-labelledby="taxLabel">
+            <span class="suffix">%</span>
+          </div>
+          <div class="input-affix grow" id="taxAnnualWrap" hidden>
+            <span class="prefix">$</span>
+            <input id="taxAnnual" name="taxAnnual" type="number" min="0" step="50" inputmode="decimal" aria-labelledby="taxLabel">
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="Property tax unit">
+            <label><input type="radio" name="taxMode" value="percent"><span>%</span></label>
+            <label><input type="radio" name="taxMode" value="amount"><span>$</span></label>
+          </div>
+        </div>
+        <label class="check" id="taxAutoRow">
+          <input id="taxRateAuto" name="taxRateAuto" type="checkbox">
+          <span>Estimate from ZIP code</span>
+        </label>
+        <small id="taxHint" class="hint"></small>
+      </div>
+
+      <div class="two-col">
+        <label class="field">
+          <span>Home insurance (per year)</span>
+          <div class="input-affix"><span class="prefix">$</span>
+            <input id="insuranceAnnual" name="insuranceAnnual" type="number" min="0" step="50" inputmode="decimal">
+          </div>
+        </label>
+        <label class="field">
+          <span>HOA (per month)</span>
+          <div class="input-affix"><span class="prefix">$</span>
+            <input id="hoaMonthly" name="hoaMonthly" type="number" min="0" step="10" inputmode="decimal">
+          </div>
+        </label>
+      </div>
+
+      <label class="field">
+        <span>PMI rate (per year)</span>
+        <div class="input-affix">
+          <input id="pmiRate" name="pmiRate" type="number" min="0" max="5" step="0.05" inputmode="decimal">
+          <span class="suffix">%</span>
+        </div>
+        <small class="hint">Typically 0.3%–1.5% depending on credit score and down payment.</small>
+      </label>
+      <label class="check">
+        <input id="pmiRequestCancel" name="pmiRequestCancel" type="checkbox">
+        <span>I'll ask my lender to cancel PMI at 80%</span>
+      </label>
+      <small id="pmiHint" class="hint"></small>
+
+      <h2>Pay it off faster</h2>
+      <label class="field">
+        <span>Extra principal (per month)</span>
+        <div class="input-affix"><span class="prefix">$</span>
+          <input id="extraMonthly" name="extraMonthly" type="number" min="0" step="50" inputmode="decimal">
+        </div>
+      </label>
+
+      <div class="actions">
+        <button type="button" id="shareBtn" class="btn">Copy share link</button>
+        <button type="button" id="resetBtn" class="btn btn-ghost">Reset</button>
+        <span id="actionStatus" class="hint" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <section class="results">
+      <div class="card">
+        <p class="eyebrow">Estimated monthly payment</p>
+        <p id="monthlyTotal" class="big-number">$0</p>
+        <div id="breakdown"></div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="card">
+        <h2>Property tax</h2>
+        <p id="taxSummary" class="muted"></p>
+        <div class="tax-figures" id="taxFigures"></div>
+        <div id="taxStrip"></div>
+        <p id="oregonNote" class="callout" hidden>In Oregon, property tax is based on the home's <em>assessed value</em>, which does not reset when the home sells. Two homes with the same price can have very different tax bills. For an accurate number, switch the tax field to <strong>$</strong> and enter the current tax bill from the listing or <a href="https://www.portlandmaps.com/" target="_blank" rel="noopener">PortlandMaps</a>.</p>
+        <p class="fine-print">Estimates use average effective property tax rates (Tax Foundation 2026, from 2024 Census ACS data), with county-level rates for Portland and Vancouver ZIPs. Your actual rate may differ a lot. Check your local assessor and override the rate above if you know it.</p>
+      </div>
+
+      <div class="card">
+        <h2>Balance over time</h2>
+        <div id="balanceChart"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Amortization schedule</h2>
+          <div class="segmented" role="radiogroup" aria-label="Schedule view">
+            <label><input type="radio" name="scheduleView" value="yearly" form="form"><span>Yearly</span></label>
+            <label><input type="radio" name="scheduleView" value="monthly" form="form"><span>Monthly</span></label>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="schedule">
+            <thead>
+              <tr><th id="periodHeader">Year</th><th>Principal</th><th>Interest</th><th>Extra</th><th>PMI</th><th>Balance</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>For estimates only. Not financial advice. Property tax and insurance are held flat over the loan (no increases), amounts aren't rounded to the cent like a lender's statement, and totals assume no refinance.</p>
+  </footer>
+</body>
+</html>

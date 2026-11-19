@@ -1,0 +1,16 @@
+{
+  "name": "mortgage-calculator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mortgage calculator with property tax estimates by ZIP code. Static site for GitHub Pages.",
+  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && tsc && cp index.html styles.css dist/",
+    "watch": "tsc --watch",
+    "serve": "python3 -m http.server 8000 -d dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
