@@ -69,6 +69,8 @@
         <small id="zipStatus" class="hint"></small>
       </label>
 
+      <details class="advanced" id="taxAdvanced">
+      <summary>Advanced: set your own property tax</summary>
       <div class="field">
         <span id="taxLabel">Property tax (per year)</span>
         <div class="input-row">
@@ -91,6 +93,7 @@
         </label>
         <small id="taxHint" class="hint"></small>
       </div>
+      </details>
 
       <div class="two-col">
         <label class="field">
@@ -150,7 +153,7 @@
         <p id="taxSummary" class="muted"></p>
         <div class="tax-figures" id="taxFigures"></div>
         <div id="taxStrip"></div>
-        <p id="oregonNote" class="callout" hidden>In Oregon, property tax is based on the home's <em>assessed value</em>, which does not reset when the home sells. Two homes with the same price can have very different tax bills. For an accurate number, switch the tax field to <strong>$</strong> and enter the current tax bill from the listing or <a href="https://www.portlandmaps.com/" target="_blank" rel="noopener">PortlandMaps</a>.</p>
+        <p id="oregonNote" class="callout" hidden>In Oregon, property tax is based on the home's <em>assessed value</em>, which does not reset when the home sells. Two homes with the same price can have very different tax bills. For an accurate number, open <strong>Advanced</strong> under the ZIP code, switch to <strong>$</strong>, and enter the current tax bill from the listing or <a href="https://www.portlandmaps.com/" target="_blank" rel="noopener">PortlandMaps</a>.</p>
         <p class="fine-print">Estimates use average effective property tax rates (Tax Foundation 2026, from 2024 Census ACS data), with county-level rates for Portland and Vancouver ZIPs. Your actual rate may differ a lot. Check your local assessor and override the rate above if you know it.</p>
       </div>
 

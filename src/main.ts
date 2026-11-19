@@ -116,6 +116,8 @@ function render(): void {
   else zipStatus.textContent = "We don't have tax data for this ZIP. Enter a rate manually.";
 
   const amountMode = state.taxMode === "amount";
+  const overriding = amountMode || !state.taxRateAuto;
+  if (overriding) zipStatus.textContent += " Using your own property tax from Advanced instead.";
   $("taxRateWrap").hidden = amountMode;
   $("taxAnnualWrap").hidden = !amountMode;
   $("taxAutoRow").hidden = amountMode;
@@ -311,6 +313,7 @@ $("resetBtn").addEventListener("click", () => {
   state = { ...DEFAULT_STATE };
   history.replaceState(null, "", window.location.pathname);
   writeForm(state);
+  $<HTMLDetailsElement>("taxAdvanced").open = false;
   render();
 });
 
@@ -323,4 +326,6 @@ if (window.location.search) {
 
 // Initial paint
 writeForm(state);
+// Show the Advanced section if a saved manual tax override is in effect.
+$<HTMLDetailsElement>("taxAdvanced").open = state.taxMode === "amount" || !state.taxRateAuto;
 render();

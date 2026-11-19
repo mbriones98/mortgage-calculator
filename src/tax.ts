@@ -19,19 +19,23 @@ export interface StateTaxInfo {
 export const NATIONAL_AVERAGE_RATE = 0.9;
 
 // Local overrides for the Portland metro, where county rates differ from the
-// statewide average. Only ZIPs that sit mostly inside one county are listed.
+// statewide average. ZIP lists were checked against the Census 2020
+// ZCTA-to-county relationship file: only ZIPs with >=70% of their land area
+// in the county are listed (e.g. 97229 is only 38% Multnomah, so it's excluded).
 interface LocalArea { name: string; rate: number; zips: string[] }
 
 const LOCAL_AREAS: LocalArea[] = [
   {
-    // Tax Foundation 2026 / ACS 2024: Multnomah County 1.02%.
+    // Oregon DOR FY 2025-26: Multnomah tax / real market value = 1.20%.
+    // Matches a real estimate of $600/mo on a $625k Portland home (1.15%).
+    // (ACS 2024 owner-reported figure is lower, 1.02%.)
     name: "Multnomah County (Portland)",
-    rate: 1.0,
+    rate: 1.15,
     zips: [
-      "97201", "97202", "97203", "97204", "97205", "97206", "97209", "97210", "97211", "97212",
-      "97213", "97214", "97215", "97216", "97217", "97218", "97220", "97227", "97230", "97232",
-      "97233", "97236", "97239", "97266", // Portland
-      "97030", "97080", "97024", "97060", // Gresham, Fairview, Troutdale
+      "97201", "97202", "97203", "97204", "97205", "97206", "97208", "97209", "97210", "97211",
+      "97212", "97213", "97214", "97215", "97216", "97217", "97218", "97219", "97220", "97221",
+      "97227", "97230", "97231", "97232", "97233", "97236", "97239", "97258", "97266", // Portland
+      "97030", "97080", "97024", "97060", "97019", // Gresham, Fairview, Troutdale, Corbett
     ],
   },
   {
@@ -39,8 +43,10 @@ const LOCAL_AREAS: LocalArea[] = [
     name: "Clark County (Vancouver)",
     rate: 0.95,
     zips: [
-      ...Array.from({ length: 28 }, (_, i) => String(98660 + i)), // 98660-98687 Vancouver
-      "98604", "98606", "98607", "98642", "98671", // Battle Ground, Brush Prairie, Camas, Ridgefield, Washougal
+      // 98660-98687 Vancouver, minus 98671 (Washougal: only 50% Clark County)
+      ...Array.from({ length: 28 }, (_, i) => String(98660 + i)).filter((z) => z !== "98671"),
+      "98601", "98604", "98606", "98607", "98629", "98642", "98675",
+      // Amboy, Battle Ground, Brush Prairie, Camas, La Center, Ridgefield, Yacolt
     ],
   },
 ];

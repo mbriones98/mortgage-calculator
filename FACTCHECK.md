@@ -128,7 +128,7 @@ What this means for a buyer's tax as a % of purchase price ≈ (the home's own A
 - **The most accurate input for an existing Oregon home is the current tax bill in dollars.** It appears on every listing and on PortlandMaps / the county assessor's site, and the buyer will inherit it (plus about 3%/yr). A % of price is only a fallback.
 
 **Suggested defaults:**
-- **Portland (Multnomah) ZIPs: about 1.0%.** This is the ACS 1.02% rounded; the DOR all-property figure of 1.20% is an upper bound.
+- **Portland (Multnomah) ZIPs: about 1.15%.** Between the ACS 1.02% (runs low) and the DOR all-property 1.20%, and in line with a real $625k Portland estimate of $600/mo (1.15%).
 - **Washington and Clackamas County ZIPs:** keep about 0.85%.
 - **Caveat:** 3-digit prefixes don't line up with counties. 972xx is mostly Multnomah but includes Washington County ZIPs such as 97223, 97224, 97225 and 97229, and 970xx spans several counties. A small 5-digit override table for the Multnomah ZIPs (97201–97220, 97227, 97230, 97232, 97233, 97236, 97239, 97266, plus Gresham 97030/97080, etc.) is more accurate than a prefix rule. Verify that list against USPS/county data before using it; I did not fetch a ZIP-to-county file.
 
@@ -204,7 +204,7 @@ Freddie Mac PMMS for the week of **Nov 12, 2026**: **30-yr fixed 7.11%** (down f
 ## Recommended changes
 
 1. **`src/storage.ts` → `DEFAULT_STATE`**
-   - `annualRate: 6.5` → **`7.1`**. Re-check PMMS (released Thursdays) before shipping. Consider a comment like `// Freddie Mac PMMS 30-yr avg, 2026-11-12`.
+   - `annualRate`: stays a **static** default; no live rate feed (decided 2026-11-18). Either keep `6.5` or bump to `7.1` (PMMS 30-yr avg, 2026-11-12) with a comment noting the date. Users can override it.
    - `homePrice: 400_000` → **`545_000`** if the site is Portland-focused (RMLS metro median, Sept 2026). Otherwise keep it as a national default.
    - `insuranceAnnual: 1_800` → keep, or `1_850` (NerdWallet Portland, Feb 2026).
    - `pmiRate: 0.5` → keep (or `0.6`) and add UI helper text: *"Typically 0.3%–1.5%/yr depending on credit score and down payment."*
@@ -215,18 +215,20 @@ Freddie Mac PMMS for the week of **Nov 12, 2026**: **30-yr fixed 7.11%** (down f
    - `WA: ["Washington", 0.8]` → **`0.75`**.
    - Refresh the whole `STATES` table from the Tax Foundation, *Property Taxes by State and County, 2026* (2024 ACS), and update the header comment to name the source and data year.
    - `NATIONAL_AVERAGE_RATE = 0.9` → keep. Optionally cite "NAHB, 2024 ACS, 0.89%".
-   - Add an optional 5-digit override for Multnomah County (Portland) ZIPs at **~1.0%**, checked before the prefix lookup. Example:
+   - Add an optional 5-digit override for Multnomah County (Portland) ZIPs at **~1.15%**, checked before the prefix lookup. The ACS figure (1.02%) runs low. The user's real estimate for a $625k Portland home ($600/mo = $7,200/yr = 1.15%) matches the DOR all-property figure (1.20%), so use the higher end. Example:
      ```ts
-     // Multnomah County (Portland), Tax Foundation 2026 / ACS 2024: 1.02%
-     const ZIP_OVERRIDES: Record<string, number> = { "97201": 1.0, "97202": 1.0, /* … verify list … */ };
+     // Multnomah County (Portland): ACS 2024 1.02%, OR DOR FY25-26 1.20%; real quotes ~1.15%
+     const ZIP_OVERRIDES: Record<string, number> = { "97201": 1.15, "97202": 1.15, /* … verify list … */ };
      ```
      Verify the ZIP list against a ZIP-to-county file first; 972xx includes Washington County ZIPs.
    - Optionally, a Clark County (986xx) override of about 0.95%, based on City of Vancouver 2025 levies of $9.69–$10.10 per $1,000.
 
-3. **Oregon UI note.** When the ZIP resolves to OR, show: *"In Oregon, taxes are based on the home's assessed value, which does not reset when it sells, so the tax can be far above or below this estimate. Use the current tax bill from the listing or PortlandMaps for an accurate number."* Ideally, also add a "property tax: $/yr" input mode alongside the % of price.
+3. **Manual property tax override in an "Advanced" section** (user request, 2026-11-18). Put a manual property tax rate (%) input in a collapsible Advanced section. When it's filled in, it replaces the ZIP-based rate. `FormState` already has `taxRateAuto` / `taxRate`, so wire the UI to those rather than adding new state. Optionally offer a $/yr mode as well.
 
-4. **`src/mortgage.ts` PMI**
+4. **Oregon UI note.** When the ZIP resolves to OR, show: *"In Oregon, taxes are based on the home's assessed value, which does not reset when it sells, so the tax can be far above or below this estimate. Use the current tax bill from the listing or PortlandMaps for an accurate number."* Ideally, also add a "property tax: $/yr" input mode alongside the % of price.
+
+5. **`src/mortgage.ts` PMI**
    - Fix the `PMI_CANCEL_LTV` comment: "auto-cancels at 78% LTV" is accurate only without extra payments.
    - Better: end PMI at the earliest of (a) the baseline-schedule balance ≤ 78% × price, (b) the actual balance ≤ 80% × price (borrower request; make it a UI toggle), and (c) `termYears*12/2`. See §2.
 
-5. **Footnotes worth adding to the UI:** tax and insurance are held flat (no escalation); amounts aren't rounded to the cent; total PMI assumes no refinance.
+6. **Footnotes worth adding to the UI:** tax and insurance are held flat (no escalation); amounts aren't rounded to the cent; total PMI assumes no refinance.
