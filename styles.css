@@ -314,3 +314,21 @@ th, td { padding: 8px 12px; text-align: right; white-space: nowrap; }
 th:first-child, td:first-child { text-align: left; }
 thead th { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--muted); }
 tbody tr:nth-child(even) { background: color-mix(in srgb, var(--grid) 40%, transparent); }
+
+/* ---------- Math panels ---------- */
+
+.math-toggle { margin-top: 12px; width: fit-content; }
+.math-panel {
+  margin-top: 16px;
+  padding: 4px 16px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  font-size: 0.9rem;
+}
+.math-panel[hidden] { display: none; }
+.math-panel h3 { font-size: 0.95rem; margin: 14px 0 6px; }
+.math-panel p { margin: 6px 0; }
+.math-panel .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; margin: 8px 0; }
+.math-panel .katex { font-size: 1.05em; }
+.tex-fallback { white-space: pre-wrap; font-size: 0.8rem; color: var(--muted); margin: 6px 0; }

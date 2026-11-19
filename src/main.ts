@@ -3,6 +3,7 @@ import { allStates, lookupZip, NATIONAL_AVERAGE_RATE } from "./tax.js";
 import { clearState, DEFAULT_STATE, loadState, saveState, shareUrl, type FormState } from "./storage.js";
 import { renderBalanceChart, renderBreakdown, renderTaxStrip } from "./charts.js";
 import { formatCurrency, formatDuration, formatPercent } from "./format.js";
+import { balanceMath, ensureKatex, paymentMath, scheduleMath, taxMath, type MathContext } from "./math.js";
 
 // ---------------------------------------------------------------------------
 // DOM helpers
@@ -41,6 +42,7 @@ function writeForm(s: FormState): void {
   $<HTMLInputElement>("zip").value = s.zip;
   $<HTMLInputElement>("taxRateAuto").checked = s.taxRateAuto;
   $<HTMLInputElement>("pmiRequestCancel").checked = s.pmiRequestCancel;
+  $<HTMLInputElement>("showMath").checked = s.showMath;
   for (const r of radios("taxMode")) r.checked = r.value === s.taxMode;
   for (const r of radios("downMode")) r.checked = r.value === s.downMode;
   for (const r of radios("scheduleView")) r.checked = r.value === s.scheduleView;
@@ -65,6 +67,7 @@ function readForm(): FormState {
     hoaMonthly: readNumber("hoaMonthly"),
     extraMonthly: readNumber("extraMonthly"),
     scheduleView: checked("scheduleView") === "monthly" ? "monthly" : "yearly",
+    showMath: $<HTMLInputElement>("showMath").checked,
   };
 }
 
@@ -150,6 +153,37 @@ function render(): void {
   renderTax(result, zipInfo);
   renderBalanceChart($("balanceChart"), result.schedule, result.loanAmount, state.homePrice);
   renderSchedule(result.schedule, state.scheduleView, state.homePrice);
+  renderMath(result);
+}
+
+const MATH_PANELS: Array<[id: string, build: (c: MathContext) => string]> = [
+  ["mathPayment", paymentMath],
+  ["mathTax", taxMath],
+  ["mathBalance", balanceMath],
+  ["mathSchedule", scheduleMath],
+];
+
+function renderMath(result: LoanResult): void {
+  const on = state.showMath;
+  for (const [id] of MATH_PANELS) $(id).hidden = !on;
+  if (!on) return;
+  ensureKatex(render); // re-render with typeset math once KaTeX arrives
+
+  const ctx: MathContext = {
+    result,
+    homePrice: state.homePrice,
+    downPayment: downPaymentDollars(state),
+    annualRate: state.annualRate,
+    termYears: state.termYears,
+    taxRate: effectiveTaxRate(state),
+    taxMode: state.taxMode,
+    insuranceAnnual: state.insuranceAnnual,
+    pmiRate: state.pmiRate,
+    pmiRequestCancel: state.pmiRequestCancel,
+    hoaMonthly: state.hoaMonthly,
+    extraMonthly: state.extraMonthly,
+  };
+  for (const [id, build] of MATH_PANELS) $(id).innerHTML = build(ctx);
 }
 
 function stat(label: string, value: string, note?: string): string {

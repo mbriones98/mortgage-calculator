@@ -20,6 +20,7 @@ export interface FormState {
   hoaMonthly: number;
   extraMonthly: number;
   scheduleView: "yearly" | "monthly";
+  showMath: boolean;
 }
 
 // Defaults are tuned for the Portland, OR metro (sources in FACTCHECK.md).
@@ -40,6 +41,7 @@ export const DEFAULT_STATE: FormState = {
   hoaMonthly: 0,
   extraMonthly: 0,
   scheduleView: "yearly",
+  showMath: false,
 };
 
 /** Merges untrusted data into a valid FormState, keeping defaults for anything malformed. */

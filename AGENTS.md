@@ -16,7 +16,7 @@ There is no backend, no database, no API keys, and no live data feeds. All data 
 - **TypeScript** (strict, `noUncheckedIndexedAccess`) compiled with plain `tsc`. No bundler and no framework.
 - **Native ES modules** in the browser (`<script type="module" src="js/main.js">`). Imports inside `src/` must use `.js` extensions (e.g. `import { x } from "./tax.js"`) because `tsc` doesn't rewrite paths.
 - **Plain HTML + CSS.** The theme uses CSS custom properties on `:root` with light/dark variants. Charts are hand-written SVG; there are no chart libraries.
-- **Zero runtime dependencies.** The only dev dependency is `typescript`.
+- **No bundled runtime dependencies.** The only dev dependency is `typescript`. The one external script is **KaTeX** (`katex@0.16.11` from jsDelivr), lazy-loaded by `src/math.ts` only when the user enables "Show the math". The page falls back to raw TeX if it can't load.
 - **Persistence:** `localStorage` (key `mortgage-calculator:v1`), with URL query params taking priority for share links.
 - **Deploy:** `.github/workflows/deploy.yml` builds on every push to `main` and publishes `dist/` to GitHub Pages (Pages source is set to "GitHub Actions").
 
@@ -42,6 +42,7 @@ There is no test suite yet. Verify math changes by importing the compiled module
 | `src/tax.ts` | ZIP → state mapping, state property tax rates, Portland/Vancouver county overrides |
 | `src/storage.ts` | `FormState` type, `DEFAULT_STATE`, localStorage load/save, share URLs |
 | `src/charts.ts` | SVG payment breakdown, balance/equity chart, state tax strip |
+| `src/math.ts` | "Show the math" panels: derivations (TeX) with the user's live numbers substituted |
 | `src/format.ts` | Currency / percent / duration formatting |
 | `src/main.ts` | Reads the form, calls the math, renders everything, wires events |
 | `FACTCHECK.md` | Research report behind every number in the app |
@@ -51,7 +52,8 @@ There is no test suite yet. Verify math changes by importing the compiled module
 - Keep `mortgage.ts` pure (inputs in, numbers out) so it can be tested without a browser.
 - **Adding a field to `FormState`:** add it to `DEFAULT_STATE` and handle it in `sanitize()` in `storage.ts` (stored and URL values are untrusted). Then wire it in `writeForm` / `readForm` in `main.ts`.
 - **Changing a data value** (rates, defaults): update the code comment with the source and date, update the matching entry in the **Sources & methodology** section of `index.html`, and note it in `FACTCHECK.md`.
-- Use `textContent` (not `innerHTML`) for anything derived from user input.
+- Use `textContent` (not `innerHTML`) for anything derived from user input. (The math panels use `innerHTML`, but they only contain numbers formatted by the code and KaTeX output.)
+- If you change a formula in `mortgage.ts`, update the matching derivation in `src/math.ts`. Its closed forms (k_auto, k*, n', nM − P) were checked against the simulation and should keep matching it exactly.
 - The page must work at phone widths (grid columns use `minmax(0, 1fr)`), and in both light and dark themes.
 
 ## Research

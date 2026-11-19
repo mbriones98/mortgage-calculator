@@ -13,6 +13,10 @@
   <header class="site-header">
     <h1>Mortgage Calculator</h1>
     <p class="subtitle">Monthly payment, property tax by ZIP, and amortization. Your inputs are saved in this browser.</p>
+    <label class="check math-toggle">
+      <input id="showMath" name="showMath" type="checkbox">
+      <span>Show the math: formulas, derivations, and your numbers plugged in</span>
+    </label>
   </header>
 
   <main class="layout">
@@ -144,6 +148,7 @@
         <p class="eyebrow">Estimated monthly payment</p>
         <p id="monthlyTotal" class="big-number">$0</p>
         <div id="breakdown"></div>
+        <div class="math-panel" id="mathPayment" hidden></div>
       </div>
 
       <div class="stats" id="stats"></div>
@@ -153,6 +158,7 @@
         <p id="taxSummary" class="muted"></p>
         <div class="tax-figures" id="taxFigures"></div>
         <div id="taxStrip"></div>
+        <div class="math-panel" id="mathTax" hidden></div>
         <p id="oregonNote" class="callout" hidden>In Oregon, property tax is based on the home's <em>assessed value</em>, which does not reset when the home sells. Two homes with the same price can have very different tax bills. For an accurate number, open <strong>Advanced</strong> under the ZIP code, switch to <strong>$</strong>, and enter the current tax bill from the listing or <a href="https://www.portlandmaps.com/" target="_blank" rel="noopener">PortlandMaps</a>.</p>
         <p class="fine-print">Estimates use average effective property tax rates (Tax Foundation 2026, from 2024 Census ACS data), with county-level rates for Portland and Vancouver ZIPs. Your actual rate may differ a lot. Check your local assessor and override the rate above if you know it. <a href="#methodology">Sources</a>.</p>
       </div>
@@ -160,6 +166,7 @@
       <div class="card">
         <h2>Balance over time</h2>
         <div id="balanceChart"></div>
+        <div class="math-panel" id="mathBalance" hidden></div>
         <p class="fine-print">Model: standard fixed-rate, fully amortizing loan with monthly compounding (the annuity formula lenders use). Equity is the home price minus what you still owe, assuming the home's value stays flat. <a href="#methodology">How this is calculated</a>.</p>
       </div>
 
@@ -180,6 +187,7 @@
           </table>
         </div>
         <p class="fine-print">Equity assumes the home's value stays at the purchase price.</p>
+        <div class="math-panel" id="mathSchedule" hidden></div>
       </div>
 
       <div class="card prose" id="methodology">
